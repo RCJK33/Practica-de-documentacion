@@ -1,5 +1,10 @@
 import math
-#from ..Unidad2.E2_U_Animales import Animal
+
+# Estructura del elemento que se almacenara en la tabla hash
+class HashElment:
+    def __init__(self,key: str, object = None) -> None:
+        self.key = key # key del objeto
+        self.object = object # Objeto que se alamacena
 
 
 class HashTable:
@@ -7,15 +12,16 @@ class HashTable:
         # Se recomienda utilizar numeros primos para el length de la lista
         # Se recomienda dejar el numero magico en 7, 2 o 1 (puedes probar a ver cual da menos coluciones)
         #   de preferencia un numero primo relativo del length de la lista
-        self.__hashList = list(None for i in range(length))
-        self.__lengthTable = length
+        self.__hashList = list([] for i in range(length))
+        self.__lengthTable = length        # Tamaño de la tabla
         self.__rehashLimit = rehash_Limit
 
+        # Numero magico, se utiliza para dar un cambio a la ecuacion Hash si se ncesita
         self.__magicNumber = magic_number
 
-        self.length = 0
+        self.length = 0     # Cantidad de elementos
 
-    # Esta version del metodo no hacer Rehash
+    # Esta version del metodo no hace Rehash
     def __hash__(self,key: str) -> int:
         hs = 0
         index = 1
@@ -50,7 +56,7 @@ class HashTable:
         while True:
             index = rehash(len(key), (ints + self.__magicNumber)) % self.__lengthTable
 
-            if self.__isAvailable(index):
+            if self.containsKey(index):
                 print("{:<15}{:<10}{:<2}".format(key, index, ints+1))
                 return index
             elif ints < self.__rehashLimit:
@@ -59,30 +65,72 @@ class HashTable:
                 print(f"Hash no disponible  -> {key} | [{ints} intentos].")
                 break """
     
-    def __isAvailable(self, index: int):
-        try:
-            if self.__hashList[index] is None:
-                return True
-        except:
-            return False
+    def __retunSubIndexByKey(self, key: str) -> int:
+        index = self.__hash__(key)
+        for i in range(len(self.__hashList[index])):
+            obj: HashElment = self.__hashList[index][i]
+            if obj.key == key:
+                return i
+        return None
+    
+    def containsKey(self, key: str) -> bool:
+        if self.__retunSubIndexByKey(key) is not None:
+            return True
         return False
     
-    def add(self, key: str):
-        index = self.__hash__(key)
-        if self.__isAvailable(index):
-            self.__hashList[index] = key
+    
+    def add(self, key: str, object = None) -> None:
+        contains = self.containsKey(key)
+        if not contains:
+            index = self.__hash__(key)
+            obj = HashElment(key, object)
+            self.__hashList[index].append(obj)
             self.length += 1
+    
+    def put(self, key: str, object = None) -> None:
+        index = self.__hash__(key)
+        obj = HashElment(key, object)
+        if not self.containsKey(key):
+            self.__hashList[index].append(obj)
+            self.length += 1
+        else:
+            subIndex = self.__retunSubIndexByKey(key)
+            self.__hashList[index][subIndex] = obj
+
+    def get(self, key: str):
+        contains = self.containsKey(key)
+        if not contains:
+            return None
+        index = self.__hash__(key)
+        subIndex = self.__retunSubIndexByKey(key)
+        obj: HashElment = self.__hashList[index][subIndex]
+        # return self.__hashList[index][subIndex]
+        return obj.key
+    
+    def remove(self, key: str):
+        try:
+            index = self.__hash__(key)
+            subIndex = self.__retunSubIndexByKey(key)
+            self.__hashList[index].pop(subIndex)
+        except:
+            pass
 
     def printTableHash(self):
-        print("{:<5}{:<15}".format('index','Value'))
+        print("|{:<5} | {:<10}| {:<10}|".format('Index','key','O'))
         for i in range(self.__lengthTable):
-            print("{:<5}{:<15}".format(i,str(self.__hashList[i])))
+            array = self.__hashList[i]
+            if not len(array)>0:
+                print(f"|{i}")
+
+            for i2 in range(len(array)):
+                obj: HashElment = self.__hashList[i][i2]
+                print("|{:<5} | {:<13}| {:<10}|".format(i,obj.key,str(None)))
 
 
 """ 
 obj_name = HashTable(value)     => La instanciacion de la clase HashTable, indica en el parametro el tamaño de la tabla.
 add("Cadena de texto")          => Metodo que añade un nuevo valor a la tabla hash.
-__isAvailable(index)            => Metodo privado que se asegura de saber si habra una colisión. En caso de ser asi, retorna False, de lo contrario True
+containsKey(index)            => Metodo privado que se asegura de saber si habra una colisión. En caso de ser asi, retorna False, de lo contrario True
 __hash__("Cadena de texto")     => Metodo privado que calcula el indice en el que se almacenara un elemento
 """
 
@@ -90,7 +138,7 @@ __hash__("Cadena de texto")     => Metodo privado que calcula el indice en el qu
 hash_list = HashTable(23)
 # print("{:<15}{:<10}{:<2}".format('key','index','Intentos'))
 
-hash_list.add("Mario")
+""" hash_list.add("Mario")
 hash_list.add("Mauricio")
 hash_list.add("Fernanda")
 hash_list.add("Noemi")
@@ -112,6 +160,4 @@ hash_list.add("leaG")
 hash_list.add("imeoN")
 hash_list.add("adnanreF")
 hash_list.add("oiciruaM")
-hash_list.add("oiraM")
-
-hash_list.printTableHash()
+hash_list.add("oiraM") """
