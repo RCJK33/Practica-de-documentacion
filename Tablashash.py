@@ -1,45 +1,49 @@
 import math
 
-# Estructura del elemento que se almacenara en la tabla hash
+""" Para la materia de Estructura de datos 
+    Version: TH-R2-1
+    (Nombre - Numero de Rama - version)
+"""
+
 class HashElment:
+    # Estructura del elemento que se almacenara en la tabla hash
     def __init__(self,key: str, object = None) -> None:
         self.key = key # key del objeto
         self.object = object # Objeto que se alamacena
 
 
 class HashTable:
+    """def __init__(self,length: int = 29,magic_number: int = 7,rehash_Limit: int = 6) -> None: """
     def __init__(self,length: int = 29,magic_number: int = 7,rehash_Limit: int = 6) -> None:
         # Se recomienda utilizar numeros primos para el length de la lista
         # Se recomienda dejar el numero magico en 7, 2 o 1 (puedes probar a ver cual da menos coluciones)
         #   de preferencia un numero primo relativo del length de la lista
         self.__hashList = list([] for i in range(length))
         self.__lengthTable = length        # Tamaño de la tabla
-        self.__rehashLimit = rehash_Limit
+        """ self.__rehashLimit = rehash_Limit       # Limite de intentos de rehash """
 
         # Numero magico, se utiliza para dar un cambio a la ecuacion Hash si se ncesita
         self.__magicNumber = magic_number
+        self.length = 0     # Cantidad de elementos introduciodos
 
-        self.length = 0     # Cantidad de elementos
-
-    # Esta version del metodo no hace Rehash
     def __hash__(self,key: str) -> int:
+        # Metodo para calcular el hash (No hace rehash)
         hs = 0
         index = 1
         keyLength = len(key)
         
         for i in range(keyLength):
             # Formula Hash [Funcion lineal con los parametros 
-            # i++ (ascii de Char) + (2 (o 1) + ascii char)]
+            # i++ (ascii de Char) + numero Maico]
             # Funcion que depende del numero de iteracion lo que significa que si hay otra letra igual, la funcion no sera igual.
             hs += (i+1) * (ord(key[i])) + self.__magicNumber
         index = hs % self.__lengthTable
-
-        # print("{:<15}{:<10}{:<15}{:<2}".format(key,index,str(self.__hashList[index]),1))
         return index
 
-    # Metodo basado en el metodo de Direccionamiento abierto o Hasing Cerrado (Rehash)
-    # Mas info en https://ccia.ugr.es/~jfv/ed1/tedi/cdrom/docs/tablash.html
     """ def __hash__(self,key: str) -> int:
+        # Metodo inspirado en el metodo de Direccionamiento abierto o Hasing Cerrado (Rehash)
+        # Mas info en https://ccia.ugr.es/~jfv/ed1/tedi/cdrom/docs/tablash.html
+        # ## NO UTILIZAR, METODO NO COMPATIBLE CON ESTA VERSION
         def rehash(keyLength: int, intents: int = 1):
             hash = 0
             for it in range(keyLength):
@@ -80,8 +84,7 @@ class HashTable:
     
     
     def add(self, key: str, object = None) -> None:
-        contains = self.containsKey(key)
-        if not contains:
+        if not self.containsKey(key):
             index = self.__hash__(key)
             obj = HashElment(key, object)
             self.__hashList[index].append(obj)
@@ -97,15 +100,14 @@ class HashTable:
             subIndex = self.__retunSubIndexByKey(key)
             self.__hashList[index][subIndex] = obj
 
-    def get(self, key: str):
+    def get(self, key: str) -> HashElment:
         contains = self.containsKey(key)
         if not contains:
             return None
         index = self.__hash__(key)
         subIndex = self.__retunSubIndexByKey(key)
         obj: HashElment = self.__hashList[index][subIndex]
-        # return self.__hashList[index][subIndex]
-        return obj.key
+        return obj
     
     def remove(self, key: str):
         try:
@@ -119,24 +121,13 @@ class HashTable:
         print("|{:<5} | {:<10}| {:<10}|".format('Index','key','O'))
         for i in range(self.__lengthTable):
             array = self.__hashList[i]
-            if not len(array)>0:
-                print(f"|{i}")
-
+            print(f"|{i}")
             for i2 in range(len(array)):
                 obj: HashElment = self.__hashList[i][i2]
-                print("|{:<5} | {:<13}| {:<10}|".format(i,obj.key,str(None)))
-
-
-""" 
-obj_name = HashTable(value)     => La instanciacion de la clase HashTable, indica en el parametro el tamaño de la tabla.
-add("Cadena de texto")          => Metodo que añade un nuevo valor a la tabla hash.
-containsKey(index)            => Metodo privado que se asegura de saber si habra una colisión. En caso de ser asi, retorna False, de lo contrario True
-__hash__("Cadena de texto")     => Metodo privado que calcula el indice en el que se almacenara un elemento
-"""
+                print(" --|{:<5} | {:<13}| {:<10}|".format(i2,obj.key,str(None)))
 
 
 hash_list = HashTable(23)
-# print("{:<15}{:<10}{:<2}".format('key','index','Intentos'))
 
 """ hash_list.add("Mario")
 hash_list.add("Mauricio")
